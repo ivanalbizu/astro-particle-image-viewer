@@ -1,0 +1,88 @@
+---
+import { ParticleImageViewer } from '../../index';
+import ParticleImage from '../components/ParticleImage.astro';
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro Particle Image Viewer - Demo</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 1rem;
+        background-color: #f0f0f0;
+        font-family: system-ui, sans-serif;
+      }
+      h1 {
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Astro Particle Image Lightbox</h1>
+
+    <ParticleImageViewer
+      config={{
+        openDuration: 2000,
+        closeDuration: 1200,
+      }}
+      title="Haz click en una imagen para ver el efecto de partículas WebGL."
+      titleTag="h3"
+    >
+      <ParticleImage
+        src="img-01.jpg"
+        hdSrc="img-01-hd.jpg"
+        width="300"
+        alt="Imagen de muestra 1"
+				loading="lazy"
+      />
+      <ParticleImage
+        src="img-02.jpg"
+        hdSrc="img-02-hd.jpg"
+        width="300"
+        alt="Imagen de muestra 2"
+				loading="lazy"
+      />
+      <ParticleImage
+        src="img-03.jpg"
+        hdSrc="img-03-hd.jpg"
+        width="300"
+        alt="Imagen de muestra 3"
+				loading="lazy"
+      />
+      <ParticleImage
+        src="img-04.jpg"
+        hdSrc="img-04-hd.jpg"
+        width="300"
+        alt="Imagen de muestra 4"
+				loading="lazy"
+      />
+      <ParticleImage
+        src="img-05.jpg"
+        hdSrc="img-05-hd.jpg"
+        width="300"
+        alt="Imagen de muestra 5"
+				loading="lazy"
+      />
+      <ParticleImage
+        src="img-06.jpg"
+        hdSrc="img-06-hd.jpg"
+        width="300"
+        alt="Imagen de muestra 6"
+				loading="lazy"
+      />
+      <ParticleImage
+        src="img-07.jpg"
+        hdSrc="img-07-hd.jpg"
+        width="300"
+        alt="Imagen de muestra 7"
+				loading="lazy"
+      />
+    </ParticleImageViewer>
+  </body>
+</html>

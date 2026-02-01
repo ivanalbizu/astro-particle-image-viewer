@@ -1,0 +1,471 @@
+---
+import type { ParticleViewerConfig } from '../lib/particle-viewer/ParticleViewer';
+
+export interface Props {
+  config?: ParticleViewerConfig;
+  title?: string;
+  titleTag?: string;
+  class?: string;
+}
+
+const { config = {}, title, titleTag: TitleTag = 'h2', class: className } = Astro.props;
+
+const configJson = JSON.stringify(config);
+const containerId = `particle-viewer-${Math.random().toString(36).slice(2, 9)}`;
+const galleryId = `gallery-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div
+  class:list={['particle-image-viewer-wrapper', className]}
+  data-piv-container={containerId}
+  data-piv-gallery={galleryId}
+  data-piv-config={configJson}
+>
+  {title && <TitleTag class:list={"particle-gallery-title"}>{title}</TitleTag>}
+
+  <div class="particle-gallery" id={galleryId}>
+    <slot />
+  </div>
+
+  <div class="particle-viewer-container" id={containerId}>
+    <canvas class="webgl-canvas"></canvas>
+    <button class="close-button" type="button" aria-label="Cerrar">&times;</button>
+    <button class="nav-button prev" type="button" aria-label="Anterior">&#10094;</button>
+    <button class="nav-button next" type="button" aria-label="Siguiente">&#10095;</button>
+    <div class="caption"></div>
+    <div class="pagination"></div>
+  </div>
+</div>
+
+<script>
+  import { shouldUseFallback } from '../lib/particle-viewer/performance';
+  import type { ParticleViewer } from '../lib/particle-viewer/ParticleViewer';
+  import type { SimpleLightbox } from '../lib/particle-viewer/SimpleLightbox';
+
+  type ViewerInstance = ParticleViewer | SimpleLightbox;
+
+  // Store instances for cleanup (keyed by container ID)
+  const instances = new Map<string, ViewerInstance>();
+
+  async function initViewers() {
+    document.querySelectorAll<HTMLElement>('[data-piv-container]').forEach(async wrapper => {
+      const containerId = wrapper.dataset.pivContainer;
+      const galleryId = wrapper.dataset.pivGallery;
+      const configJson = wrapper.dataset.pivConfig;
+
+      if (!containerId || !galleryId) return;
+
+      // Skip if already initialized
+      if (instances.has(containerId)) return;
+
+      const gallery = document.getElementById(galleryId);
+      if (!gallery) return;
+
+      const containerSelector = `#${containerId}`;
+      const imageSelector = `#${galleryId} .particle-gallery-button`;
+      const highResAttribute = 'data-original-src';
+
+      // Dynamic imports: only load the viewer that's needed
+      if (shouldUseFallback()) {
+        const { SimpleLightbox } = await import('../lib/particle-viewer/SimpleLightbox');
+        const instance = new SimpleLightbox(containerSelector, imageSelector, highResAttribute);
+        instances.set(containerId, instance);
+      } else {
+        const { ParticleViewer } = await import('../lib/particle-viewer/ParticleViewer');
+        const config = configJson ? JSON.parse(configJson) : {};
+        config.srcAttribute = highResAttribute;
+        const instance = new ParticleViewer(containerSelector, imageSelector, config);
+        instances.set(containerId, instance);
+      }
+    });
+  }
+
+  function destroyViewers() {
+    instances.forEach((instance) => {
+      instance.destroy();
+    });
+    instances.clear();
+  }
+
+  // Initialize on first load
+  initViewers();
+
+  // View Transitions support: cleanup before navigation
+  document.addEventListener('astro:before-swap', destroyViewers);
+
+  // View Transitions support: reinitialize after navigation
+  document.addEventListener('astro:page-load', initViewers);
+</script>
+
+<style>
+  .particle-image-viewer-wrapper {
+    /* Colors */
+    --piv-title-color: #333;
+    --piv-text-color: white;
+    --piv-text-color-inverse: #111;
+    --piv-shadow: rgba(0, 0, 0, 0.1);
+    --piv-overlay-bg: rgba(0, 0, 0, 0.25);
+    --piv-caption-bg: rgba(0, 0, 0, 0.5);
+    --piv-button-bg: rgba(0, 0, 0, 0.6);
+    --piv-button-bg-hover: rgba(0, 0, 0, 0.8);
+    --piv-button-border: rgba(255, 255, 255, 0.5);
+    --piv-button-border-hover: rgba(255, 255, 255, 0.8);
+    --piv-button-shadow: rgba(0, 0, 0, 0.3);
+    --piv-active-bg: rgba(255, 255, 255, 0.9);
+    --piv-active-glow: rgba(255, 255, 255, 0.4);
+    --piv-focus-ring: rgba(255, 255, 255, 0.9);
+    --piv-border-subtle: rgba(255, 255, 255, 0.2);
+    --piv-glow-subtle: rgba(255, 255, 255, 0.1);
+    --piv-text-shadow: rgba(0, 0, 0, 0.5);
+
+    /* Spacing */
+    --piv-spacing-sm: 8px;
+    --piv-spacing-md: 20px;
+    --piv-spacing-lg: 30px;
+    --piv-caption-bottom: 90px;
+    --piv-pagination-bottom: 30px;
+
+    /* Sizes */
+    --piv-button-size: 50px;
+    --piv-dot-size: 44px;
+    --piv-border-radius: 8px;
+    --piv-border-radius-round: 50%;
+    --piv-border-radius-pill: 20px;
+    --piv-border-width: 2px;
+
+    /* Typography */
+    --piv-font-size-close: 32px;
+    --piv-font-size-nav: 24px;
+    --piv-font-size-caption: 18px;
+    --piv-font-size-dot: 14px;
+
+    /* Blur */
+    --piv-blur-overlay: 5px;
+    --piv-blur-button: 4px;
+    --piv-blur-caption: 10px;
+
+    /* Transitions */
+    --piv-transition-fast: 0.2s ease;
+    --piv-transition-normal: 0.3s ease;
+    --piv-transition-slow: 0.5s ease;
+
+    /* Z-index */
+    --piv-z-container: 1000;
+    --piv-z-controls: 10;
+    --piv-z-pagination: 20;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .particle-image-viewer-wrapper {
+      --piv-title-color: #f0f0f0;
+    }
+  }
+
+  .particle-gallery {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .particle-gallery-title {
+    width: 100%;
+    color: var(--piv-title-color);
+    margin-bottom: 1rem;
+  }
+
+  :global(.particle-gallery-button) {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: transform var(--piv-transition-fast);
+  }
+
+  :global(.particle-gallery-button:hover) {
+    transform: scale(1.05);
+  }
+
+  :global(.particle-gallery-button:focus-visible) {
+    outline: 3px solid var(--piv-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--piv-border-radius);
+  }
+
+  :global(.particle-gallery-button img) {
+    border-radius: var(--piv-border-radius);
+    box-shadow: 0 4px 8px var(--piv-shadow);
+    display: block;
+  }
+
+  .particle-viewer-container {
+    position: fixed;
+    inset: 0;
+    z-index: var(--piv-z-container);
+    pointer-events: none;
+  }
+
+  .particle-viewer-container::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--piv-transition-slow);
+  }
+
+  .particle-viewer-container.visible::before {
+    opacity: 0.06;
+  }
+
+  .particle-viewer-container.visible {
+    pointer-events: auto;
+  }
+
+  .webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--piv-overlay-bg);
+    backdrop-filter: blur(var(--piv-blur-overlay));
+    -webkit-backdrop-filter: blur(var(--piv-blur-overlay));
+    z-index: -1;
+    opacity: 0;
+    transition:
+      opacity var(--piv-transition-normal),
+      background-color var(--piv-transition-normal);
+  }
+
+  .particle-viewer-container.visible .webgl-canvas {
+    opacity: 1;
+    pointer-events: auto;
+    transition:
+      opacity var(--piv-transition-slow),
+      background-color var(--piv-transition-slow);
+  }
+
+  .close-button {
+    position: fixed;
+    top: var(--piv-spacing-lg);
+    right: var(--piv-spacing-lg);
+    min-width: var(--piv-button-size);
+    min-height: var(--piv-button-size);
+    background: var(--piv-button-bg);
+    border: var(--piv-border-width) solid var(--piv-button-border);
+    border-radius: var(--piv-border-radius-round);
+    color: var(--piv-text-color);
+    font-size: var(--piv-font-size-close);
+    cursor: pointer;
+    z-index: var(--piv-z-controls);
+    opacity: 0;
+    backdrop-filter: blur(var(--piv-blur-button));
+    -webkit-backdrop-filter: blur(var(--piv-blur-button));
+    box-shadow: 0 2px 8px var(--piv-button-shadow);
+    transition:
+      opacity var(--piv-transition-fast),
+      transform var(--piv-transition-fast),
+      background var(--piv-transition-normal),
+      border-color var(--piv-transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+  }
+
+  .close-button:hover {
+    transform: scale(1.1);
+    background: var(--piv-button-bg-hover);
+    border-color: var(--piv-button-border-hover);
+  }
+
+  .close-button:focus-visible {
+    outline: 3px solid var(--piv-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .particle-viewer-container.visible .close-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .nav-button {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    min-width: var(--piv-button-size);
+    min-height: var(--piv-button-size);
+    background: var(--piv-button-bg);
+    border: var(--piv-border-width) solid var(--piv-button-border);
+    border-radius: var(--piv-border-radius-round);
+    color: var(--piv-text-color);
+    font-size: var(--piv-font-size-nav);
+    cursor: pointer;
+    z-index: var(--piv-z-controls);
+    opacity: 0;
+    backdrop-filter: blur(var(--piv-blur-button));
+    -webkit-backdrop-filter: blur(var(--piv-blur-button));
+    box-shadow: 0 2px 8px var(--piv-button-shadow);
+    transition:
+      opacity var(--piv-transition-fast),
+      background var(--piv-transition-normal),
+      border-color var(--piv-transition-normal),
+      transform var(--piv-transition-normal);
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-button:hover {
+    background: var(--piv-button-bg-hover);
+    border-color: var(--piv-button-border-hover);
+  }
+
+  .nav-button:focus-visible {
+    outline: 3px solid var(--piv-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .nav-button.prev {
+    left: var(--piv-spacing-md);
+  }
+
+  .nav-button.next {
+    right: var(--piv-spacing-md);
+  }
+
+  .particle-viewer-container.visible .nav-button {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .caption {
+    position: fixed;
+    bottom: var(--piv-caption-bottom);
+    left: 50%;
+    transform: translateX(-50%) translateY(var(--piv-spacing-md));
+    width: max-content;
+    max-width: 70vw;
+    color: var(--piv-text-color);
+    font-family: system-ui, sans-serif;
+    font-size: var(--piv-font-size-caption);
+    background: var(--piv-caption-bg);
+    backdrop-filter: blur(var(--piv-blur-caption));
+    -webkit-backdrop-filter: blur(var(--piv-blur-caption));
+    padding: 10px var(--piv-spacing-md);
+    border-radius: var(--piv-border-radius-pill);
+    border: 1px solid var(--piv-border-subtle);
+    box-shadow: 0 0 15px var(--piv-glow-subtle);
+    text-shadow: 0 2px 4px var(--piv-text-shadow);
+    z-index: var(--piv-z-controls);
+    opacity: 0;
+    transition:
+      opacity var(--piv-transition-fast),
+      transform var(--piv-transition-fast);
+  }
+
+  .particle-viewer-container.visible .caption.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    transition:
+      opacity var(--piv-transition-slow),
+      transform var(--piv-transition-slow);
+  }
+
+  .pagination {
+    position: fixed;
+    bottom: var(--piv-pagination-bottom);
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: var(--piv-spacing-sm);
+    align-items: center;
+    z-index: var(--piv-z-pagination);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity var(--piv-transition-fast),
+      visibility var(--piv-transition-fast);
+    max-width: calc(100vw - var(--piv-spacing-lg) * 2);
+  }
+
+  .particle-viewer-container.visible .pagination {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity var(--piv-transition-normal),
+      visibility var(--piv-transition-normal);
+  }
+
+  :global(.pagination-dot),
+  :global(.pagination-nav) {
+    min-width: var(--piv-dot-size);
+    min-height: var(--piv-dot-size);
+    border-radius: var(--piv-border-radius-round);
+    background: var(--piv-button-bg);
+    color: var(--piv-text-color);
+    font-weight: bold;
+    font-size: var(--piv-font-size-dot);
+    border: var(--piv-border-width) solid var(--piv-button-border);
+    cursor: pointer;
+    padding: 0;
+    backdrop-filter: blur(var(--piv-blur-button));
+    -webkit-backdrop-filter: blur(var(--piv-blur-button));
+    box-shadow: 0 2px 8px var(--piv-button-shadow);
+    transition:
+      background var(--piv-transition-normal),
+      border-color var(--piv-transition-normal),
+      transform var(--piv-transition-normal),
+      opacity var(--piv-transition-normal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  :global(.pagination-dot:hover),
+  :global(.pagination-nav:hover) {
+    background: var(--piv-button-bg-hover);
+    border-color: var(--piv-button-border-hover);
+  }
+
+  :global(.pagination-dot:focus-visible),
+  :global(.pagination-nav:focus-visible) {
+    outline: 3px solid var(--piv-focus-ring);
+    outline-offset: 2px;
+  }
+
+  :global(.pagination-dot.active) {
+    background: var(--piv-active-bg);
+    color: var(--piv-text-color-inverse);
+    border-color: var(--piv-text-color);
+    transform: scale(1.1);
+    box-shadow: 0 2px 12px var(--piv-active-glow);
+  }
+
+  :global(.pagination-nav) {
+    font-size: var(--piv-font-size-caption);
+    flex-shrink: 0;
+  }
+
+  :global(.pagination-dots) {
+    display: flex;
+    gap: var(--piv-spacing-sm);
+    align-items: center;
+  }
+
+  :global(.simple-lightbox-image) {
+    opacity: 0;
+    transition: opacity var(--piv-transition-normal);
+    pointer-events: none;
+  }
+
+  .particle-viewer-container.visible :global(.simple-lightbox-image) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+</style>

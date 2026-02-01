@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 450" width="1200" height="450">
+  <defs>
+    <!-- Background gradient -->
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f0f23"/>
+      <stop offset="50%" style="stop-color:#1a1a3e"/>
+      <stop offset="100%" style="stop-color:#0d0d1f"/>
+    </linearGradient>
+
+    <!-- Accent gradient for particles -->
+    <linearGradient id="particleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff6b6b"/>
+      <stop offset="50%" style="stop-color:#feca57"/>
+      <stop offset="100%" style="stop-color:#48dbfb"/>
+    </linearGradient>
+
+    <!-- Glow filter -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Stronger glow -->
+    <filter id="glowStrong" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Image placeholder gradient -->
+    <linearGradient id="imageGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea"/>
+      <stop offset="100%" style="stop-color:#764ba2"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="450" fill="url(#bgGradient)"/>
+
+  <!-- Grid pattern (subtle) -->
+  <g opacity="0.05">
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#fff" stroke-width="0.5"/>
+    </pattern>
+    <rect width="1200" height="450" fill="url(#grid)"/>
+  </g>
+
+  <!-- Dispersing particles (left side - source image breaking apart) -->
+  <g filter="url(#glow)">
+    <!-- Source image rectangle (fading) -->
+    <rect x="80" y="120" width="180" height="210" rx="8" fill="url(#imageGradient)" opacity="0.3"/>
+
+    <!-- Particles flying from image -->
+    <circle cx="260" cy="130" r="4" fill="#ff6b6b" opacity="0.9"/>
+    <circle cx="280" cy="155" r="3" fill="#feca57" opacity="0.85"/>
+    <circle cx="295" cy="180" r="5" fill="#48dbfb" opacity="0.9"/>
+    <circle cx="275" cy="210" r="3.5" fill="#ff6b6b" opacity="0.8"/>
+    <circle cx="290" cy="240" r="4" fill="#feca57" opacity="0.85"/>
+    <circle cx="265" cy="270" r="3" fill="#48dbfb" opacity="0.9"/>
+    <circle cx="285" cy="300" r="4.5" fill="#ff6b6b" opacity="0.8"/>
+    <circle cx="270" cy="325" r="3" fill="#feca57" opacity="0.85"/>
+
+    <!-- More scattered particles -->
+    <circle cx="310" cy="145" r="2.5" fill="#48dbfb" opacity="0.7"/>
+    <circle cx="330" cy="175" r="3" fill="#ff6b6b" opacity="0.75"/>
+    <circle cx="345" cy="205" r="2" fill="#feca57" opacity="0.7"/>
+    <circle cx="325" cy="235" r="3.5" fill="#48dbfb" opacity="0.75"/>
+    <circle cx="355" cy="265" r="2.5" fill="#ff6b6b" opacity="0.7"/>
+    <circle cx="340" cy="295" r="3" fill="#feca57" opacity="0.75"/>
+
+    <!-- Flying particles in the middle -->
+    <circle cx="380" cy="160" r="2" fill="#ff6b6b" opacity="0.6"/>
+    <circle cx="400" cy="190" r="2.5" fill="#feca57" opacity="0.55"/>
+    <circle cx="420" cy="220" r="2" fill="#48dbfb" opacity="0.6"/>
+    <circle cx="395" cy="250" r="3" fill="#ff6b6b" opacity="0.55"/>
+    <circle cx="435" cy="280" r="2" fill="#feca57" opacity="0.6"/>
+
+    <!-- Particles approaching destination -->
+    <circle cx="460" cy="175" r="2" fill="#48dbfb" opacity="0.5"/>
+    <circle cx="480" cy="200" r="2.5" fill="#ff6b6b" opacity="0.45"/>
+    <circle cx="475" cy="230" r="2" fill="#feca57" opacity="0.5"/>
+    <circle cx="490" cy="260" r="2.5" fill="#48dbfb" opacity="0.45"/>
+  </g>
+
+  <!-- Central text area -->
+  <g>
+    <!-- Text background for better legibility -->
+    <rect x="150" y="130" width="900" height="130" rx="12" fill="#000000" opacity="0.4"/>
+
+    <!-- Main title -->
+    <text x="600" y="175" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="46" font-weight="800" fill="#ffffff">
+      Astro Particle Image Viewer
+    </text>
+
+    <!-- Subtitle -->
+    <text x="600" y="230" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="500" fill="#d0d0e0">
+      Galerías de imágenes con animaciones WebGL de partículas
+    </text>
+
+    <!-- Technology badges -->
+    <g transform="translate(600, 290)">
+      <!-- Astro badge -->
+      <g transform="translate(-180, 0)">
+        <rect x="-45" y="-18" width="90" height="36" rx="18" fill="#ff5d01" opacity="0.9"/>
+        <text x="0" y="6" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#ffffff">Astro</text>
+      </g>
+
+      <!-- Three.js badge -->
+      <g transform="translate(-60, 0)">
+        <rect x="-50" y="-18" width="100" height="36" rx="18" fill="#049ef4" opacity="0.9"/>
+        <text x="0" y="6" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#ffffff">Three.js</text>
+      </g>
+
+      <!-- WebGL badge -->
+      <g transform="translate(60, 0)">
+        <rect x="-45" y="-18" width="90" height="36" rx="18" fill="#990000" opacity="0.9"/>
+        <text x="0" y="6" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#ffffff">WebGL</text>
+      </g>
+
+      <!-- TypeScript badge -->
+      <g transform="translate(180, 0)">
+        <rect x="-55" y="-18" width="110" height="36" rx="18" fill="#3178c6" opacity="0.9"/>
+        <text x="0" y="6" text-anchor="middle" font-family="system-ui, sans-serif" font-size="14" font-weight="600" fill="#ffffff">TypeScript</text>
+      </g>
+    </g>
+
+    <!-- Feature highlights -->
+    <g transform="translate(600, 370)" font-family="system-ui, sans-serif" font-size="13" fill="#808090">
+      <text x="-300" y="0" text-anchor="middle">View Transitions</text>
+      <circle cx="-200" cy="-4" r="2" fill="#48dbfb"/>
+      <text x="-100" y="0" text-anchor="middle">Accesibilidad</text>
+      <circle cx="0" cy="-4" r="2" fill="#feca57"/>
+      <text x="100" y="0" text-anchor="middle">Responsive</text>
+      <circle cx="200" cy="-4" r="2" fill="#ff6b6b"/>
+      <text x="300" y="0" text-anchor="middle">Fallback automático</text>
+    </g>
+  </g>
+
+  <!-- Assembling particles (right side - forming final image) -->
+  <g filter="url(#glow)">
+    <!-- Destination image rectangle (solid) -->
+    <rect x="940" y="120" width="180" height="210" rx="8" fill="url(#imageGradient)" opacity="0.8"/>
+
+    <!-- Particles arriving at image -->
+    <circle cx="925" cy="135" r="4" fill="#ff6b6b" opacity="0.9"/>
+    <circle cx="910" cy="165" r="3" fill="#feca57" opacity="0.85"/>
+    <circle cx="920" cy="195" r="5" fill="#48dbfb" opacity="0.9"/>
+    <circle cx="905" cy="225" r="3.5" fill="#ff6b6b" opacity="0.8"/>
+    <circle cx="918" cy="255" r="4" fill="#feca57" opacity="0.85"/>
+    <circle cx="908" cy="285" r="3" fill="#48dbfb" opacity="0.9"/>
+    <circle cx="922" cy="315" r="4.5" fill="#ff6b6b" opacity="0.8"/>
+
+    <!-- Approaching particles -->
+    <circle cx="880" cy="145" r="2.5" fill="#48dbfb" opacity="0.7"/>
+    <circle cx="865" cy="180" r="3" fill="#ff6b6b" opacity="0.75"/>
+    <circle cx="875" cy="215" r="2" fill="#feca57" opacity="0.7"/>
+    <circle cx="860" cy="250" r="3.5" fill="#48dbfb" opacity="0.75"/>
+    <circle cx="870" cy="285" r="2.5" fill="#ff6b6b" opacity="0.7"/>
+
+    <!-- Distant approaching particles -->
+    <circle cx="830" cy="160" r="2" fill="#feca57" opacity="0.5"/>
+    <circle cx="815" cy="200" r="2.5" fill="#48dbfb" opacity="0.45"/>
+    <circle cx="825" cy="240" r="2" fill="#ff6b6b" opacity="0.5"/>
+    <circle cx="810" cy="280" r="2.5" fill="#feca57" opacity="0.45"/>
+  </g>
+
+  <!-- Decorative corner particles -->
+  <g filter="url(#glow)" opacity="0.4">
+    <!-- Top left -->
+    <circle cx="30" cy="30" r="3" fill="#ff6b6b"/>
+    <circle cx="60" cy="45" r="2" fill="#feca57"/>
+    <circle cx="45" cy="70" r="2.5" fill="#48dbfb"/>
+
+    <!-- Top right -->
+    <circle cx="1170" cy="30" r="3" fill="#48dbfb"/>
+    <circle cx="1140" cy="45" r="2" fill="#ff6b6b"/>
+    <circle cx="1155" cy="70" r="2.5" fill="#feca57"/>
+
+    <!-- Bottom left -->
+    <circle cx="30" cy="420" r="3" fill="#feca57"/>
+    <circle cx="60" cy="405" r="2" fill="#48dbfb"/>
+    <circle cx="45" cy="380" r="2.5" fill="#ff6b6b"/>
+
+    <!-- Bottom right -->
+    <circle cx="1170" cy="420" r="3" fill="#ff6b6b"/>
+    <circle cx="1140" cy="405" r="2" fill="#feca57"/>
+    <circle cx="1155" cy="380" r="2.5" fill="#48dbfb"/>
+  </g>
+
+  <!-- Flow arrows (subtle) -->
+  <g opacity="0.15" stroke="#ffffff" stroke-width="1" fill="none">
+    <path d="M 270 225 Q 400 180 530 225" stroke-dasharray="4,4"/>
+    <path d="M 270 225 Q 400 270 530 225" stroke-dasharray="4,4"/>
+    <path d="M 670 225 Q 800 180 920 225" stroke-dasharray="4,4"/>
+    <path d="M 670 225 Q 800 270 920 225" stroke-dasharray="4,4"/>
+  </g>
+</svg>

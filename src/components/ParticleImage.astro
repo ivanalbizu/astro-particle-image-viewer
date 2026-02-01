@@ -1,0 +1,31 @@
+---
+export interface ImageSource {
+  srcset: string;
+  media?: string;
+  type?: string;
+}
+
+export interface Props {
+  src: string;
+  alt?: string;
+  width?: string | number;
+  height?: string | number;
+  hdSrc?: string;
+  class?: string;
+  loading?: 'lazy' | 'eager';
+  decoding?: 'async' | 'sync' | 'auto';
+  sources?: ImageSource[];
+}
+
+const { src, alt = '', width, height, hdSrc, class: className, loading = 'lazy', decoding = 'async', sources = [] } = Astro.props;
+
+const attributes = hdSrc ? { 'data-original-src': hdSrc } : {};
+---
+
+<button type="button" class:list={['particle-gallery-button', className]}>
+  <picture>
+    {hdSrc && <source srcset={hdSrc} media="(min-width: 768px)" />}
+    {sources.map((source) => <source {...source} />)}
+    <img src={src} width={width} height={height} alt={alt} loading={loading} decoding={decoding} {...attributes} />
+  </picture>
+</button>
