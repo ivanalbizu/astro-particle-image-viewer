@@ -20,6 +20,7 @@ export interface ParticleViewerConfig {
 	closeDuration?: number;
 	crossfadeStart?: number;
 	srcAttribute?: string;
+	maxWidth?: number;
 }
 
 const defaultConfig: Required<ParticleViewerConfig> = {
@@ -29,6 +30,7 @@ const defaultConfig: Required<ParticleViewerConfig> = {
 	closeDuration: 1200,
 	crossfadeStart: 0.2,
 	srcAttribute: 'src',
+	maxWidth: 0,
 };
 
 type ThreeModule = typeof import('./three-proxy');
@@ -380,16 +382,8 @@ export class ParticleViewer {
 			const imgRect = img.getBoundingClientRect();
 			const vpWidth = window.innerWidth;
 			const vpHeight = window.innerHeight;
-			const imgAspect = imgWidth / imgHeight;
-			const vpAspect = vpWidth / vpHeight;
-			let viewWidth, viewHeight;
-			if (imgAspect > vpAspect) {
-				viewWidth = imgWidth * this.config.padding;
-				viewHeight = viewWidth / vpAspect;
-			} else {
-				viewHeight = imgHeight * this.config.padding;
-				viewWidth = viewHeight * vpAspect;
-			}
+
+			const { viewWidth, viewHeight } = this.calculateViewDimensions();
 
 			const count = geometry.attributes.position.count;
 			const startPositions = new Float32Array(count * 3);
@@ -842,13 +836,30 @@ export class ParticleViewer {
 		const imgAspect = this.imageWidth / this.imageHeight;
 		const vpAspect = vpWidth / vpHeight;
 
+		// Calculate dimensions as if filling viewport
+		let viewWidth, viewHeight;
 		if (imgAspect > vpAspect) {
-			const viewWidth = this.imageWidth * this.config.padding;
-			return { viewWidth, viewHeight: viewWidth / vpAspect };
+			viewWidth = this.imageWidth * this.config.padding;
+			viewHeight = viewWidth / vpAspect;
 		} else {
-			const viewHeight = this.imageHeight * this.config.padding;
-			return { viewWidth: viewHeight * vpAspect, viewHeight };
+			viewHeight = this.imageHeight * this.config.padding;
+			viewWidth = viewHeight * vpAspect;
 		}
+
+		// Apply maxWidth constraint: limit the displayed image size in screen pixels
+		if (this.config.maxWidth > 0) {
+			// Calculate what the image width would be in screen pixels
+			const displayedImageWidth = this.imageWidth * (vpWidth / viewWidth);
+
+			if (displayedImageWidth > this.config.maxWidth) {
+				// Scale up the view to make the image appear smaller
+				const scale = displayedImageWidth / this.config.maxWidth;
+				viewWidth *= scale;
+				viewHeight *= scale;
+			}
+		}
+
+		return { viewWidth, viewHeight };
 	}
 
 	private updateBackground(src: string, duration: number = 1200, delay: number = 0): void {

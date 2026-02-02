@@ -38,6 +38,7 @@ import { ParticleImageViewer } from '@ivanalbizu/astro-particle-image-viewer';
   config={{
     openDuration: 2000,
     closeDuration: 1200,
+    maxWidth: 1440,
   }}
 >
   <img src="/image-1.jpg" width="300" alt="Description 1" />
@@ -66,6 +67,7 @@ interface ParticleViewerConfig {
   closeDuration?: number;  // Close animation duration in ms (default: 1200)
   crossfadeStart?: number; // When to start crossfade 0-1 (default: 0.2)
   srcAttribute?: string;   // Attribute for image source (default: 'src')
+  maxWidth?: number;       // Maximum image width in pixels (default: 0 = no limit)
 }
 ```
 
