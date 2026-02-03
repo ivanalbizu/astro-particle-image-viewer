@@ -18,7 +18,9 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Detects if the device is likely low-performance based on hardware heuristics
+ * Detects if the device is likely low-performance based on network heuristics
+ * Note: Hardware checks (CPU cores, memory) removed because privacy browsers
+ * like Brave falsify these values, causing false positives
  */
 export function isLowPerformance(): boolean {
 	const nav = navigator as NavigatorWithExtensions;
@@ -34,28 +36,20 @@ export function isLowPerformance(): boolean {
 		return true;
 	}
 
-	// 3. Low device memory (less than 4GB RAM) - Chrome/Edge only
-	const memory = nav.deviceMemory;
-	if (memory !== undefined && memory < 4) {
-		return true;
-	}
-
-	// 4. Low CPU cores (2 or fewer)
-	const cores = navigator.hardwareConcurrency;
-	if (cores !== undefined && cores <= 2) {
-		return true;
-	}
-
 	return false;
 }
 
 /**
- * Checks if WebGL is supported and functional
+ * Checks if WebGL is supported
+ * Uses minimal detection to avoid false negatives with privacy browsers like Brave
  */
 export function isWebGLSupported(): boolean {
 	try {
 		const canvas = document.createElement('canvas');
-		const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+		// Try WebGL2 first, then WebGL1
+		const gl = canvas.getContext('webgl2') ||
+		           canvas.getContext('webgl') ||
+		           canvas.getContext('experimental-webgl');
 		return gl !== null;
 	} catch {
 		return false;

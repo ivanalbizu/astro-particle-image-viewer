@@ -133,22 +133,37 @@ export class ParticleViewer {
 		return this.threeLoading;
 	}
 
-	private initThreeJS(): void {
-		if (!this.THREE || this.scene) return;
+	private initThreeJS(): boolean {
+		if (!this.THREE || this.scene) return true;
 
 		const isMobile = window.innerWidth < 768;
 
-		this.scene = new this.THREE.Scene();
-		this.clock = new this.THREE.Clock();
-		this.camera = new this.THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
-		this.camera.position.z = 100;
+		try {
+			this.scene = new this.THREE.Scene();
+			this.clock = new this.THREE.Clock();
+			this.camera = new this.THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 1000);
+			this.camera.position.z = 100;
 
-		this.renderer = new this.THREE.WebGLRenderer({
-			canvas: this.canvas,
-			alpha: true,
-			antialias: !isMobile,
-			powerPreference: "high-performance"
-		});
+			this.renderer = new this.THREE.WebGLRenderer({
+				canvas: this.canvas,
+				alpha: true,
+				antialias: !isMobile,
+				// Removed powerPreference for better Brave compatibility
+				failIfMajorPerformanceCaveat: false
+			});
+
+			// Verify the renderer context is valid
+			const gl = this.renderer.getContext();
+			if (!gl || gl.isContextLost()) {
+				throw new Error('WebGL context lost or invalid');
+			}
+
+			return true;
+		} catch (error) {
+			console.warn('WebGL initialization failed:', error);
+			this.cleanupScene();
+			return false;
+		}
 	}
 
 	private bindEvents(): void {
@@ -344,9 +359,14 @@ export class ParticleViewer {
 		if (!img) return;
 
 		const THREE = await this.loadThree();
-		this.initThreeJS();
+		const initSuccess = this.initThreeJS();
 
-		if (!this.scene || !this.renderer || !this.camera || !this.clock) return;
+		if (!initSuccess || !this.scene || !this.renderer || !this.camera || !this.clock) {
+			// WebGL failed - open image in new tab as fallback
+			const imgSrc = img.getAttribute(this.config.srcAttribute) || img.getAttribute('src');
+			if (imgSrc) window.open(imgSrc, '_blank');
+			return;
+		}
 
 		this.currentIndex = Array.from(this.images).indexOf(item);
 		this.updatePagination();
