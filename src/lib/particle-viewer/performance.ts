@@ -18,9 +18,9 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * Detects if the device is likely low-performance based on network heuristics
- * Note: Hardware checks (CPU cores, memory) removed because privacy browsers
- * like Brave falsify these values, causing false positives
+ * Detects if the device is likely low-performance based on network and hardware heuristics
+ * Hardware check requires BOTH low memory AND low cores to avoid false positives
+ * from privacy browsers like Brave that falsify individual values
  */
 export function isLowPerformance(): boolean {
 	const nav = navigator as NavigatorWithExtensions;
@@ -33,6 +33,17 @@ export function isLowPerformance(): boolean {
 	// 2. Slow connection (2G or slow-2g)
 	const effectiveType = nav.connection?.effectiveType;
 	if (effectiveType === '2g' || effectiveType === 'slow-2g') {
+		return true;
+	}
+
+	// 3. Low-end hardware: require BOTH low memory AND low cores
+	// This avoids false positives from privacy browsers that falsify only one value
+	const memory = nav.deviceMemory;
+	const cores = navigator.hardwareConcurrency;
+	const hasLowMemory = memory !== undefined && memory < 4;
+	const hasLowCores = cores !== undefined && cores <= 2;
+
+	if (hasLowMemory && hasLowCores) {
 		return true;
 	}
 

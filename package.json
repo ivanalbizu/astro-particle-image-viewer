@@ -1,6 +1,6 @@
 {
   "name": "@ivanalbizu/astro-particle-image-viewer",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "description": "WebGL particle image viewer for Astro with stunning animation effects using Three.js",
   "author": "Ivan Albizu",

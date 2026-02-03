@@ -166,11 +166,12 @@ The component automatically provides a simplified lightbox experience when:
 - User has **`prefers-reduced-motion: reduce`** enabled
 - Browser has **Data Saver** mode enabled
 - Connection is **2G or slow-2g**
+- Device has **both low memory (<4GB) AND few CPU cores (≤2)**
 - **WebGL is not supported**
 
-When any of these conditions are detected, `SimpleLightbox` is used instead of `ParticleViewer`. This provides the same navigation functionality without WebGL animations, respecting user preferences and network conditions.
+When any of these conditions are detected, `SimpleLightbox` is used instead of `ParticleViewer`. This provides the same navigation functionality without WebGL animations, respecting user preferences and device capabilities.
 
-**Privacy browser compatible**: Works with Brave and other privacy-focused browsers that may falsify hardware information.
+**Privacy browser compatible**: Works with Brave and other privacy-focused browsers. Hardware detection requires both low memory AND low cores to avoid false positives from browsers that falsify individual values.
 
 ### Manual fallback detection
 
